@@ -78,7 +78,7 @@ namespace ModMaker
                             List<HarmonyMethod> harmonyMethods = HarmonyMethodExtensions.GetFromType(type);
                             if (harmonyMethods != null && harmonyMethods.Count() > 0)
                             {
-                                process.Log($"Patching: {type.DeclaringType?.Name}.{type.Name}");
+                                process.Log($"Patching: {type.FullName}");
                                 PatchClassProcessor patchProcessor = harmonyInstance.CreateClassProcessor(type);
                                 patchProcessor.Patch();
                             }
@@ -148,7 +148,7 @@ namespace ModMaker
                             .Where(patch => patch.owner == modEntry.Info.Id);
                         if (patches.Any())
                         {
-                            process.Log($"Unpatching: {patches.First().PatchMethod.DeclaringType.DeclaringType?.Name}.{method.DeclaringType.Name}.{method.Name}");
+                            process.Log($"Unpatching: {patches.First().PatchMethod.DeclaringType.FullName} from {method.DeclaringType.FullName}.{method.Name}");
                             foreach (Patch patch in patches)
                             {
                                 try { harmonyInstance.Unpatch(method, patch.PatchMethod); }
