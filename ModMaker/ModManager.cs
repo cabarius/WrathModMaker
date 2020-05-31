@@ -1,4 +1,4 @@
-﻿using Harmony12;
+﻿using HarmonyLib;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -55,6 +55,12 @@ namespace ModMaker
                 try
                 {
                     process.Log("Enabling.");
+                    var dict = Harmony.VersionInfo(out var myVersion);
+                    process.Log($"Harmony version: {myVersion}");
+                    foreach (var entry in dict)
+                    {
+                        process.Log($"Mod {entry.Key} loaded with Harmony version {entry.Value}");
+                    }
 
                     process.Log("Loading settings.");
                     modEntry.OnSaveGUI += HandleSaveGUI;
@@ -66,15 +72,14 @@ namespace ModMaker
 
                     if (!Patched)
                     {
-                        HarmonyInstance harmonyInstance = HarmonyInstance.Create(modEntry.Info.Id);
+                        Harmony harmonyInstance = new Harmony(modEntry.Info.Id);
                         foreach (Type type in types)
                         {
-                            List<HarmonyMethod> harmonyMethods = type.GetHarmonyMethods();
+                            List<HarmonyMethod> harmonyMethods = HarmonyMethodExtensions.GetFromType(type);
                             if (harmonyMethods != null && harmonyMethods.Count() > 0)
                             {
                                 process.Log($"Patching: {type.DeclaringType?.Name}.{type.Name}");
-                                HarmonyMethod attributes = HarmonyMethod.Merge(harmonyMethods);
-                                PatchProcessor patchProcessor = new PatchProcessor(harmonyInstance, type, attributes);
+                                PatchClassProcessor patchProcessor = harmonyInstance.CreateClassProcessor(type);
                                 patchProcessor.Patch();
                             }
                         }
@@ -134,19 +139,19 @@ namespace ModMaker
 
                 if (unpatch)
                 {
-                    HarmonyInstance harmonyInstance = HarmonyInstance.Create(modEntry.Info.Id);
+                    Harmony harmonyInstance = new Harmony(modEntry.Info.Id);
                     foreach (MethodBase method in harmonyInstance.GetPatchedMethods().ToList())
                     {
-                        Patches patchInfo = harmonyInstance.GetPatchInfo(method);
+                        Patches patchInfo = Harmony.GetPatchInfo(method);
                         IEnumerable<Patch> patches = 
                             patchInfo.Transpilers.Concat(patchInfo.Postfixes).Concat(patchInfo.Prefixes)
                             .Where(patch => patch.owner == modEntry.Info.Id);
                         if (patches.Any())
                         {
-                            process.Log($"Unpatching: {patches.First().patch.DeclaringType.DeclaringType?.Name}.{method.DeclaringType.Name}.{method.Name}");
+                            process.Log($"Unpatching: {patches.First().PatchMethod.DeclaringType.DeclaringType?.Name}.{method.DeclaringType.Name}.{method.Name}");
                             foreach (Patch patch in patches)
                             {
-                                try { harmonyInstance.Unpatch(method, patch.patch); }
+                                try { harmonyInstance.Unpatch(method, patch.PatchMethod); }
                                 catch (Exception e) { Error(e); }
                             }
                         }
