@@ -79,8 +79,14 @@ namespace ModMaker
                             if (harmonyMethods != null && harmonyMethods.Count() > 0)
                             {
                                 process.Log($"Patching: {type.FullName}");
-                                PatchClassProcessor patchProcessor = harmonyInstance.CreateClassProcessor(type);
-                                patchProcessor.Patch();
+                                try {
+                                    PatchClassProcessor patchProcessor = harmonyInstance.CreateClassProcessor(type);
+                                    patchProcessor.Patch();
+                                }
+                                catch (Exception e)
+                                {
+                                    Error(e);
+                                }
                             }
                         }
                         Patched = true;
