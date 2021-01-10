@@ -7,7 +7,7 @@ namespace ModMaker.Utility
     {
         public GUISubScope() : this(null) { }
 
-        public GUISubScope(string subtitle, string param = "")
+        public GUISubScope(string subtitle, string param = "Label")
         {
             if (!string.IsNullOrEmpty(subtitle))
                 GUILayout.Label(subtitle.Bold());
