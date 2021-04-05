@@ -4,6 +4,7 @@ using System.Linq;
 using System.Reflection;
 using UnityEngine;
 using UnityModManagerNet;
+using ModMaker.Utility;
 
 namespace ModMaker
 {
@@ -30,6 +31,7 @@ namespace ModMaker
         private List<IMenuTopPage> _topPages = new List<IMenuTopPage>();
         private List<IMenuSelectablePage> _selectablePages = new List<IMenuSelectablePage>();
         private List<IMenuBottomPage> _bottomPages = new List<IMenuBottomPage>();
+        static Exception caughtException = null;
 
         #endregion
 
@@ -72,38 +74,48 @@ namespace ModMaker
         private void OnGUI(UnityModManager.ModEntry modEntry)
         {
             bool hasPriorPage = false;
+            try {
+                if (caughtException != null) {
+                    GUILayout.Label("ERROR".Red().Bold() + $": caught exception {caughtException}");
+                    if (GUILayout.Button("Reset".Orange().Bold(), GUILayout.ExpandWidth(false))) {
+                        caughtException = null;
+                    }
+                    return;
+                }
 
-            if (_topPages.Count > 0)
-            {
-                foreach (IMenuTopPage page in _topPages)
-                {
-                    if (hasPriorPage) GUILayout.Space(10f);
-                    page.OnGUI(modEntry);
+                if (_topPages.Count > 0) {
+                    foreach (IMenuTopPage page in _topPages) {
+                        if (hasPriorPage)
+                            GUILayout.Space(10f);
+                        page.OnGUI(modEntry);
+                        hasPriorPage = true;
+                    }
+                }
+
+                if (_selectablePages.Count > 0) {
+                    if (_selectablePages.Count > 1) {
+                        if (hasPriorPage)
+                            GUILayout.Space(10f);
+                        _tabIndex = GUILayout.Toolbar(_tabIndex, _selectablePages.Select(page => page.Name).ToArray());
+                        GUILayout.Space(10f);
+                    }
+
+                    _selectablePages[_tabIndex].OnGUI(modEntry);
                     hasPriorPage = true;
                 }
-            }
 
-            if (_selectablePages.Count > 0)
-            {
-                if (_selectablePages.Count > 1)
-                {
-                    if (hasPriorPage) GUILayout.Space(10f);
-                    _tabIndex = GUILayout.Toolbar(_tabIndex, _selectablePages.Select(page => page.Name).ToArray());
-                    GUILayout.Space(10f);
+                if (_bottomPages.Count > 0) {
+                    foreach (IMenuBottomPage page in _bottomPages) {
+                        if (hasPriorPage)
+                            GUILayout.Space(10f);
+                        page.OnGUI(modEntry);
+                        hasPriorPage = true;
+                    }
                 }
-
-                _selectablePages[_tabIndex].OnGUI(modEntry);
-                hasPriorPage = true;
             }
-
-            if (_bottomPages.Count > 0)
-            {
-                foreach (IMenuBottomPage page in _bottomPages)
-                {
-                    if (hasPriorPage) GUILayout.Space(10f);
-                    page.OnGUI(modEntry);
-                    hasPriorPage = true;
-                }
+            catch (Exception e) {
+                Console.Write($"{e}");
+                caughtException = e;
             }
         }
     }

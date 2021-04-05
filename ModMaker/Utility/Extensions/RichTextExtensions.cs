@@ -17,7 +17,7 @@ namespace ModMaker.Utility
             darkblue = 0x0000a0ff,
             fuchsia = 0xff00ffff,
             green = 0x008000ff,
-            grey = 0x808080ff,
+            grey = 0xC0C0C0ff,
             lightblue = 0xadd8e6ff,
             lime = 0x00ff00ff,
             magenta = 0xff00ffff,
@@ -52,6 +52,22 @@ namespace ModMaker.Utility
         {
             return $"<color=#{rrggbbaa}>{str}</color>";
         }
+
+        public static string color(this string s, string color) {
+            return s = $"<color={color}>{s}</color>";
+        }
+        public static string White(this string s) { return s = s.color("white"); }
+        public static string Grey(this string s) { return s = s.color("#A0A0A0FF"); }
+        public static string Red(this string s) { return s = s.color("#C04040E0"); }
+        public static string Pink(this string s) { return s = s.color("#FFA0A0E0"); }
+        public static string Green(this string s) { return s = s.color("#00ff00ff"); }
+        public static string Blue(this string s) { return s = s.color("blue"); }
+        public static string Cyan(this string s) { return s = s.color("cyan"); }
+        public static string Magenta(this string s) { return s = s.color("magenta"); }
+        public static string Yellow(this string s) { return s = s.color("yellow"); }
+        public static string Orange(this string s) { return s = s.color("orange"); }
+
+
 
         public static string Italic(this string str)
         {

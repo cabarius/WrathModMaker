@@ -1,15 +1,15 @@
-﻿using Kingmaker;
+﻿using UnityEngine;
+using Kingmaker;
 using Kingmaker.UI;
-using Kingmaker.UI.SettingsUI;
+using Kingmaker.Settings;
 using System;
 using System.Collections.Generic;
-using UnityEngine;
 
 namespace ModMaker.Utility
 {
     public static class HotkeyHelper
     {
-        public static bool CanBeRegistered(string bindingName, BindingKeysData bindingKey, 
+        public static bool CanBeRegistered(string bindingName, KeyBindingData bindingKey, 
             KeyboardAccess.GameModesGroup gameMode = KeyboardAccess.GameModesGroup.World)
         {
             bool result = Game.Instance.Keyboard.CanBeRegistered(
@@ -23,9 +23,9 @@ namespace ModMaker.Utility
             return result;
         }
 
-        public static string GetKeyText(BindingKeysData bindingKey)
+        public static string GetKeyText(KeyBindingData bindingKey)
         {
-            if (bindingKey == null)
+            if (bindingKey.Key == KeyCode.None)
             {
                 return "None";
             }
@@ -39,7 +39,7 @@ namespace ModMaker.Utility
             }
         }
 
-        public static bool ReadKey(out BindingKeysData bindingKey)
+        public static bool ReadKey(out KeyBindingData bindingKey)
         {
             KeyCode keyCode = KeyCode.None;
 
@@ -55,9 +55,9 @@ namespace ModMaker.Utility
                 }
             }
 
-            if (keyCode != KeyCode.None)
-            {
-                bindingKey = new BindingKeysData()
+            //if (keyCode != KeyCode.None)
+            //{
+                bindingKey = new KeyBindingData()
                 {
                     Key = keyCode,
                     IsCtrlDown = Input.GetKey(KeyCode.LeftControl) || Input.GetKey(KeyCode.RightControl),
@@ -65,20 +65,20 @@ namespace ModMaker.Utility
                     IsShiftDown = Input.GetKey(KeyCode.LeftShift) || Input.GetKey(KeyCode.RightShift)
                 };
                 return true;
-            }
-            else
-            {
-                bindingKey = null;
-                return false;
-            }
+            //}
+            //else
+            //{
+            //    bindingKey = null;
+            //    return false;
+            //}
         }
 
-        public static void RegisterKey(string bindingName, BindingKeysData bindingKey,
+        public static void RegisterKey(string bindingName, KeyBindingData bindingKey,
             KeyboardAccess.GameModesGroup gameMode = KeyboardAccess.GameModesGroup.World)
         {
             Game.Instance.Keyboard.UnregisterBinding(bindingName);
 
-            if (bindingKey != null && bindingKey.Key != KeyCode.None)
+            if (bindingKey.Key == KeyCode.None && bindingKey.Key != KeyCode.None)
             {
                 Game.Instance.Keyboard.RegisterBinding(bindingName, bindingKey, gameMode, false);
             }

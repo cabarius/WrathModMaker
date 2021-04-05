@@ -7,13 +7,13 @@ namespace ModMaker.Utility
     {
         public GUISubScope() : this(null) { }
 
-        public GUISubScope(string subtitle, string param = "Label")
+        public GUISubScope(string subtitle)
         {
             if (!string.IsNullOrEmpty(subtitle))
                 GUILayout.Label(subtitle.Bold());
             GUILayout.BeginHorizontal();
             GUILayout.Space(10f);
-            GUILayout.BeginVertical(param);
+            GUILayout.BeginVertical();
         }
 
         public void Dispose()
