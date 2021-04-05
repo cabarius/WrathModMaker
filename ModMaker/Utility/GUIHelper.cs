@@ -9,9 +9,9 @@ namespace ModMaker.Utility
     public static class GUIHelper
     {
 #if true
-        public static string FormatOn = "▶".Color(RGBA.lime).Bold() + " - {0}";
-        public static string FormatOff = "▲".Color(RGBA.white).Bold() + " - {0}";
-        public static string FormatNone = " ▪".Color(RGBA.green) + "   {0}";
+        public static string FormatOn = "▶".Color(RGBA.lime).Bold() + " {0}";
+        public static string FormatOff = "▲".Color(RGBA.white).Bold() + " {0}";
+        public static string FormatNone = " ▪".Color(RGBA.white) + "   {0}";
 #else
         public static string FormatOn = "◑".Color(RGBA.lime) + " - {0}";
         public static string FormatOff = "◐".Color(RGBA.red) + " - {0}";
