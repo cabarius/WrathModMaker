@@ -8,12 +8,37 @@ namespace ModMaker.Utility
 {
     public static class GUIHelper
     {
+#if true
+        public static string FormatOn = "▶".Color(RGBA.lime).Bold() + " - {0}";
+        public static string FormatOff = "▲".Color(RGBA.white).Bold() + " - {0}";
+        public static string FormatNone = " ▪".Color(RGBA.green) + "   {0}";
+#else
         public static string FormatOn = "◑".Color(RGBA.lime) + " - {0}";
         public static string FormatOff = "◐".Color(RGBA.red) + " - {0}";
-
-        public static string GetToggleText(bool toggle, string text)
+#endif
+        public enum ToggleState {
+            Off = 0,
+            On = 1,
+            None = 2
+        }
+        public static bool IsOn(this ToggleState state) { return state == ToggleState.On; }
+        public static bool IsOff(this ToggleState state) { return state == ToggleState.Off; }
+        public static ToggleState Flip(this ToggleState state) {
+            switch (state) {
+                case ToggleState.Off: return ToggleState.On;
+                case ToggleState.On: return ToggleState.Off;
+                case ToggleState.None: return ToggleState.None;
+            }
+            return ToggleState.None;
+        }
+        public static string GetToggleText(ToggleState toggleState, string text)
         {
-            return string.Format(toggle ? FormatOn : FormatOff, text);
+            switch (toggleState) {
+                case ToggleState.Off: return string.Format(FormatOff, text);
+                case ToggleState.On: return string.Format(FormatOn, text);
+                case ToggleState.None: return string.Format(FormatNone, text);
+            }
+            return string.Format(FormatNone);
         }
 
         public static int AdjusterButton(int value, string text, int min = int.MinValue, int max = int.MaxValue)
@@ -75,66 +100,66 @@ namespace ModMaker.Utility
             }
         }
 
-        public static bool ToggleButton(bool toggle, string text, GUIStyle style = null, params GUILayoutOption[] options)
+        public static ToggleState ToggleButton(ToggleState toggle, string text, GUIStyle style = null, params GUILayoutOption[] options)
         {
             ToggleButton(ref toggle, text, style, options);
             return toggle;
         }
 
-        public static void ToggleButton(ref bool toggle, string text, GUIStyle style = null, params GUILayoutOption[] options)
+        public static void ToggleButton(ref ToggleState toggle, string text, GUIStyle style = null, params GUILayoutOption[] options)
         {
             if (GUILayout.Button(GetToggleText(toggle, text), style ?? GUI.skin.button, options))
-                toggle = !toggle;
+                toggle = toggle.Flip();
         }
 
-        public static bool ToggleButton(bool toggle, string text, Action on, Action off, GUIStyle style = null, params GUILayoutOption[] options)
+        public static ToggleState ToggleButton(ToggleState toggle, string text, Action on, Action off, GUIStyle style = null, params GUILayoutOption[] options)
         {
             ToggleButton(ref toggle, text, on, off, style, options);
             return toggle;
         }
 
-        public static void ToggleButton(ref bool toggle, string text, Action on, Action off, GUIStyle style = null, params GUILayoutOption[] options)
+        public static void ToggleButton(ref ToggleState toggle, string text, Action on, Action off, GUIStyle style = null, params GUILayoutOption[] options)
         {
-            bool old = toggle;
+            ToggleState old = toggle;
             ToggleButton(ref toggle, text, style, options);
             if (toggle != old)
             {
-                if (toggle)
+                if (toggle.IsOn())
                     on?.Invoke();
                 else
                     off?.Invoke();
             }
         }
 
-        public static void ToggleButton(ref bool toggle, string text, ref float minWidth, GUIStyle style = null, params GUILayoutOption[] options)
+        public static void ToggleButton(ref ToggleState toggle, string text, ref float minWidth, GUIStyle style = null, params GUILayoutOption[] options)
         {
             GUIContent content = new GUIContent(GetToggleText(toggle, text));
             style = style ?? GUI.skin.button;
             minWidth = Math.Max(minWidth, style.CalcSize(content).x);
             if (GUILayout.Button(content, style, options?.Concat(new[] { GUILayout.Width(minWidth) }).ToArray() ?? new[] { GUILayout.Width(minWidth) }))
-                toggle = !toggle;
+                toggle = toggle.Flip();
         }
 
-        public static void ToggleButton(ref bool toggle, string text, ref float minWidth, Action on, Action off, GUIStyle style = null, params GUILayoutOption[] options)
+        public static void ToggleButton(ref ToggleState toggle, string text, ref float minWidth, Action on, Action off, GUIStyle style = null, params GUILayoutOption[] options)
         {
-            bool old = toggle;
+            ToggleState old = toggle;
             ToggleButton(ref toggle, text, ref minWidth, style, options);
             if (toggle != old)
             {
-                if (toggle)
+                if (toggle.IsOn())
                     on?.Invoke();
                 else
                     off?.Invoke();
             }
         }
 
-        public static bool ToggleTypeList(bool toggle, string text, HashSet<string> selectedTypes, HashSet<Type> allTypes, GUIStyle style = null, params GUILayoutOption[] options)
+        public static ToggleState ToggleTypeList(ToggleState toggle, string text, HashSet<string> selectedTypes, HashSet<Type> allTypes, GUIStyle style = null, params GUILayoutOption[] options)
         {
             GUILayout.BeginHorizontal();
 
             ToggleButton(ref toggle, text, style, options);
 
-            if (toggle)
+            if (toggle.IsOn())
             {
                 using(new GUILayout.VerticalScope())
                 {
@@ -155,7 +180,7 @@ namespace ModMaker.Utility
 
                     foreach (Type type in allTypes)
                     {
-                        ToggleButton(selectedTypes.Contains(type.FullName), type.Name.ToSentence(),
+                        ToggleButton(selectedTypes.Contains(type.FullName) ? ToggleState.On : ToggleState.Off, type.Name.ToSentence(),
                             () => selectedTypes.Add(type.FullName),
                             () => selectedTypes.Remove(type.FullName),
                             style, options);
