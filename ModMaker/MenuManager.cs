@@ -1,7 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using UnityEngine;
 using UnityModManagerNet;
 using ModMaker.Utility;
@@ -23,11 +25,23 @@ namespace ModMaker
 
     public interface IMenuBottomPage : IMenuPage { }
 
-    public class MenuManager
+    public class MenuManager : INotifyPropertyChanged  
     {
-        #region Fields
+        public event PropertyChangedEventHandler PropertyChanged;
 
+        // This method is called by the Set accessor of each property.  
+        // The CallerMemberName attribute that is applied to the optional propertyName  
+        // parameter causes the property name of the caller to be substituted as an argument.  
+        private void NotifyPropertyChanged([CallerMemberName] String propertyName = "") {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
+        }
+
+        #region Fields
         private int _tabIndex;
+        public int tabIndex {
+            get { return this._tabIndex; }
+            set { _tabIndex = value; NotifyPropertyChanged(); }
+        }
         private List<IMenuTopPage> _topPages = new List<IMenuTopPage>();
         private List<IMenuSelectablePage> _selectablePages = new List<IMenuSelectablePage>();
         private List<IMenuBottomPage> _bottomPages = new List<IMenuBottomPage>();
@@ -96,11 +110,12 @@ namespace ModMaker
                     if (_selectablePages.Count > 1) {
                         if (hasPriorPage)
                             GUILayout.Space(10f);
-                        _tabIndex = GUILayout.Toolbar(_tabIndex, _selectablePages.Select(page => page.Name).ToArray());
+                        tabIndex = GUILayout.Toolbar(tabIndex, _selectablePages.Select(page => page.Name).ToArray());
+                    
                         GUILayout.Space(10f);
                     }
 
-                    _selectablePages[_tabIndex].OnGUI(modEntry);
+                    _selectablePages[tabIndex].OnGUI(modEntry);
                     hasPriorPage = true;
                 }
 
