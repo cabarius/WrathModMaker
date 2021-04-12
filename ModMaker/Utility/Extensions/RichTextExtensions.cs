@@ -10,14 +10,12 @@ namespace ModMaker.Utility
         public enum RGBA : uint
         {
             aqua = 0x00ffffff,
-            black = 0x000000ff,
             blue = 0x8080ffff,
             brown = 0xC09050ff, //0xa52a2aff,
             cyan = 0x00ffffff,
             darkblue = 0x0000a0ff,
             fuchsia = 0xff40ffff,
             green = 0x40C040ff,
-            grey = 0xC0C0C0ff,
             lightblue = 0xd8e6ff,
             lime = 0x40ff40ff,
             magenta = 0xff40ffff,
@@ -27,10 +25,14 @@ namespace ModMaker.Utility
             orange = 0xffa500ff, // 0xffa500ff,
             purple = 0xC060F0ff,
             red = 0xFF4040ff,
-            silver = 0xc0c0c0ff,
             teal = 0x80f0c0ff,
+            yellow = 0xffff00ff,
+            black = 0x000000ff,
+            darkgrey = 0x808080ff,
+            silver = 0xD0D0D0ff,
+            grey = 0xC0C0C0ff,
+            lightgrey = 0xE8E8E8ff,
             white = 0xffffffff,
-            yellow = 0xffff00ff
         }
 
         public static string ToHtmlString(this RGBA color) {

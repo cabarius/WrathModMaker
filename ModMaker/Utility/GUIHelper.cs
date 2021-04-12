@@ -3,19 +3,18 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 using static ModMaker.Utility.RichTextExtensions;
-
+using RGBA = ModMaker.Utility.RichTextExtensions.RGBA;
 namespace ModMaker.Utility
 {
     public static class GUIHelper
     {
-#if true
+        public const string onMark = "<color=green><b>✔</b></color>";
+        public const string offMark = "<color=#A0A0A0E0>✖</color>";
+
         public static string FormatOn = "▶".Color(RGBA.white).Bold() + " {0}";
         public static string FormatOff = "▲".Color(RGBA.lime).Bold() + " {0}";
         public static string FormatNone = " ▪".Color(RGBA.white) + "   {0}";
-#else
-        public static string FormatOn = "◑".Color(RGBA.lime) + " - {0}";
-        public static string FormatOff = "◐".Color(RGBA.red) + " - {0}";
-#endif
+
         public enum ToggleState {
             Off = 0,
             On = 1,
@@ -98,6 +97,25 @@ namespace ModMaker.Utility
                 else
                     onChanged();
             }
+        }
+
+        static bool CheckboxPrivate(
+            ref bool value,
+            String title,
+            GUIStyle style = null,
+            params GUILayoutOption[] options
+    ) {
+            bool changed = false;
+            title = value ? title.Bold() : title.Color(RGBA.lightgrey);
+            if (GUILayout.Button("" + (value ? onMark : offMark) + " " + title, style, options)) { value = !value; }
+            return changed;
+        }
+        public static bool Checkbox(
+                ref bool value,
+                String title,
+                GUIStyle style = null,
+                params GUILayoutOption[] options) {
+            return CheckboxPrivate(ref value, title, style, options);
         }
 
         public static ToggleState ToggleButton(ToggleState toggle, string text, GUIStyle style = null, params GUILayoutOption[] options)
@@ -225,5 +243,50 @@ namespace ModMaker.Utility
                 return (float)Math.Round(GUILayout.HorizontalSlider(value, leftValue, rightValue, options), digits);
             }
         }
+
+        private static Texture2D fillTexture = null;
+        private static GUIStyle fillStyle = null;
+        private static Color fillColor = new Color(1f, 1f, 1f, 0.65f);
+        private static Color fillColor2 = new Color(1f, 1f, 1f, 0.35f);
+
+        public static GUIStyle FillStyle(Color color) {
+            if (fillTexture == null)
+                fillTexture = new Texture2D(1, 1);
+            if (fillStyle == null)
+                fillStyle = new GUIStyle();
+            fillTexture.SetPixel(0, 0, color);
+            fillTexture.Apply();
+            fillStyle.normal.background = fillTexture;
+            return fillStyle;
+        }
+        public static void GUIDrawRect(Rect position, Color color) {
+
+            GUI.Box(position, GUIContent.none, FillStyle(color));
+        }
+        private static GUIStyle divStyle;
+        public static void Div(Color color, float indent = 0, float height = 0, float width = 0) {
+            if (fillTexture == null)
+                fillTexture = new Texture2D(1, 1);
+            if (divStyle == null) {
+                divStyle = new GUIStyle();
+                divStyle.fixedHeight = 1;
+            }
+            fillTexture.SetPixel(0, 0, color);
+            fillTexture.Apply();
+            divStyle.normal.background = fillTexture;
+            divStyle.margin = new RectOffset((int)indent, 0, 4, 4);
+            if (width > 0)
+                divStyle.fixedWidth = width;
+            else
+                divStyle.fixedWidth = 0;
+            GUILayout.Space((1f* height) / 2f);
+            GUILayout.Box(GUIContent.none, divStyle);
+            GUILayout.Space(height / 2f);
+        }
+
+        public static void Div(float indent = 0, float height = 25, float width = 0) {
+            Div(fillColor, indent, height, width);
+        }
+
     }
 }
