@@ -6,6 +6,11 @@ using static ModMaker.Utility.RichTextExtensions;
 using RGBA = ModMaker.Utility.RichTextExtensions.RGBA;
 namespace ModMaker.Utility
 {
+    public enum ToggleState {
+        Off = 0,
+        On = 1,
+        None = 2
+    }
     public static class GUIHelper
     {
         public const string onMark = "<color=green><b>✔</b></color>";
@@ -15,11 +20,6 @@ namespace ModMaker.Utility
         public static string FormatOff = "▲".Color(RGBA.lime).Bold() + " {0}";
         public static string FormatNone = " ▪".Color(RGBA.white) + "   {0}";
 
-        public enum ToggleState {
-            Off = 0,
-            On = 1,
-            None = 2
-        }
         public static bool IsOn(this ToggleState state) { return state == ToggleState.On; }
         public static bool IsOff(this ToggleState state) { return state == ToggleState.Off; }
         public static ToggleState Flip(this ToggleState state) {
@@ -267,10 +267,8 @@ namespace ModMaker.Utility
         public static void Div(Color color, float indent = 0, float height = 0, float width = 0) {
             if (fillTexture == null)
                 fillTexture = new Texture2D(1, 1);
-            if (divStyle == null) {
-                divStyle = new GUIStyle();
-                divStyle.fixedHeight = 1;
-            }
+            var divStyle = new GUIStyle();
+            divStyle.fixedHeight = 1;
             fillTexture.SetPixel(0, 0, color);
             fillTexture.Apply();
             divStyle.normal.background = fillTexture;

@@ -1,14 +1,42 @@
-﻿using System.Text.RegularExpressions;
+﻿using System;
+using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
-namespace ModMaker.Utility
-{
-    public static class RichTextExtensions
-    {
+namespace ModMaker.Utility {
+    public static class StringExtensions {
+        public static bool Matches(string source, string other) {
+            if (source == null || other == null) return false;
+#if true
+            return source.IndexOf(other, 0, StringComparison.InvariantCulture) != -1;
+#else
+            return source.IndexOf(other, 0, StringComparison.InvariantCultureIgnoreCase) != -1;
+#endif
+        }
+        public static string MarkedSubstring(this string source, string other) {
+            if (string.IsNullOrWhiteSpace(source) || string.IsNullOrWhiteSpace(other))
+                return source;
+#if true
+            if (source.Contains(other)) {
+                return source.Replace(other, other.Cyan()).Bold();
+            }
+            //source = source.Replace(source, other.Cyan()).Bold();
+#else
+            var index = source.IndexOf(other, StringComparison.InvariantCultureIgnoreCase);
+            if (index != -1) {
+                var substr = source.Substring(index, other.Length);
+                source = source.Replace(substr, substr.Cyan()).Bold();
+            }
+#endif
+            return source;
+        }
+        public static string Repeat(this string s, int n) => new StringBuilder(s.Length * n).Insert(0, s, n).ToString();
+    }
+
+    public static class RichTextExtensions {
         // https://docs.unity3d.com/Manual/StyledText.html
 
-        public enum RGBA : uint
-        {
+        public enum RGBA : uint {
             aqua = 0x00ffffff,
             blue = 0x8080ffff,
             brown = 0xC09050ff, //0xa52a2aff,
@@ -39,23 +67,19 @@ namespace ModMaker.Utility
             return $"{color:X}";
         }
 
-        public static string Bold(this string str)
-        {
+        public static string Bold(this string str) {
             return $"<b>{str}</b>";
         }
 
-        public static string Color(this string str, Color color)
-        {
+        public static string Color(this string str, Color color) {
             return $"<color=#{ColorUtility.ToHtmlStringRGBA(color)}>{str}</color>";
         }
 
-        public static string Color(this string str, RGBA color)
-        {
+        public static string Color(this string str, RGBA color) {
             return $"<color=#{color:X}>{str}</color>";
         }
 
-        public static string Color(this string str, string rrggbbaa)
-        {
+        public static string Color(this string str, string rrggbbaa) {
             return $"<color=#{rrggbbaa}>{str}</color>";
         }
 
@@ -75,24 +99,20 @@ namespace ModMaker.Utility
 
 
 
-        public static string Italic(this string str)
-        {
+        public static string Italic(this string str) {
             return $"<i>{str}</i>";
         }
 
-        public static string ToSentence(this string str)
-        {
+        public static string ToSentence(this string str) {
             return Regex.Replace(str, @"((?<=\p{Ll})\p{Lu})|\p{Lu}(?=\p{Ll})", " $0").TrimStart();
             //return string.Concat(str.Select(c => char.IsUpper(c) ? " " + c : c.ToString())).TrimStart(' ');
         }
 
-        public static string Size(this string str, int size)
-        {
+        public static string Size(this string str, int size) {
             return $"<size={size}>{str}</size>";
         }
 
-        public static string SizePercent(this string str, int percent)
-        {
+        public static string SizePercent(this string str, int percent) {
             return $"<size={percent}%>{str}</size>";
         }
     }
