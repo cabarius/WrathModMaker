@@ -96,6 +96,10 @@ namespace ModMaker
                     }
                     return;
                 }
+                Event e = Event.current;
+                UI.userHasHitReturn = (e.keyCode == KeyCode.Return);
+                UI.focusedControlName = GUI.GetNameOfFocusedControl();
+
 
                 if (_topPages.Count > 0) {
                     foreach (IMenuTopPage page in _topPages) {

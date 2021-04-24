@@ -2,8 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using static ModMaker.Utility.RichTextExtensions;
-using RGBA = ModMaker.Utility.RichTextExtensions.RGBA;
+using RGBA = ModMaker.RGBA;
 namespace ModMaker.Utility
 {
     public enum ToggleState {
@@ -16,9 +15,9 @@ namespace ModMaker.Utility
         public const string onMark = "<color=green><b>✔</b></color>";
         public const string offMark = "<color=#A0A0A0E0>✖</color>";
 
-        public static string FormatOn = "▶".Color(RGBA.white).Bold() + " {0}";
-        public static string FormatOff = "▲".Color(RGBA.lime).Bold() + " {0}";
-        public static string FormatNone = " ▪".Color(RGBA.white) + "   {0}";
+        public static string FormatOn = "▶".color(RGBA.white).Bold() + " {0}";
+        public static string FormatOff = "▲".color(RGBA.lime).Bold() + " {0}";
+        public static string FormatNone = " ▪".color(RGBA.white) + "   {0}";
 
         public static bool IsOn(this ToggleState state) { return state == ToggleState.On; }
         public static bool IsOff(this ToggleState state) { return state == ToggleState.Off; }
@@ -46,14 +45,16 @@ namespace ModMaker.Utility
             return value;
         }
 
-        public static void AdjusterButton(ref int value, string text, int min = int.MinValue, int max = int.MaxValue)
+        public static bool AdjusterButton(ref int value, string text, int min = int.MinValue, int max = int.MaxValue)
         {
+            int oldValue = value;
             GUILayout.Label(text, GUILayout.ExpandWidth(false));
             if (GUILayout.Button("-", GUILayout.ExpandWidth(false)) && value > min)
                 value--;
             GUILayout.Label(value.ToString(), GUILayout.ExpandWidth(false));
             if (GUILayout.Button("+", GUILayout.ExpandWidth(false)) && value < max)
                 value++;
+            return value != oldValue;
         }
 
         public static void Hyperlink(string url, Color normalColor, Color hoverColor, GUIStyle style)
@@ -106,7 +107,7 @@ namespace ModMaker.Utility
             params GUILayoutOption[] options
     ) {
             bool changed = false;
-            title = value ? title.Bold() : title.Color(RGBA.lightgrey);
+            title = value ? title.Bold() : title.color(RGBA.lightgrey);
             if (GUILayout.Button("" + (value ? onMark : offMark) + " " + title, style, options)) { value = !value; }
             return changed;
         }
